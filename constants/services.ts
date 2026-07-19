@@ -1,27 +1,33 @@
-import { Service } from "@/types/services";
-
-export const services: Service[] = [
+export const services = [
   {
     title: "AI Automation",
     description:
-      "Automate repetitive business processes and reduce manual work.",
+      "Automate repetitive business processes using intelligent AI workflows and automation.",
+    icon: "🤖",
+    link: "/services/ai-automation",
   },
 
   {
     title: "Custom Software",
     description:
-      "Enterprise web applications tailored to your business.",
-  },
-
-  {
-    title: "AI Chatbots",
-    description:
-      "24/7 intelligent assistants for customers and employees.",
+      "Scalable web, desktop and enterprise software tailored to your business.",
+    icon: "💻",
+    link: "/services/custom-software",
   },
 
   {
     title: "Cloud Solutions",
     description:
-      "Modern scalable cloud-native software architecture.",
+      "Modern cloud-native applications with secure and scalable infrastructure.",
+    icon: "☁️",
+    link: "/services/cloud-solutions",
   },
-];
+
+  {
+    title: "AI Consulting",
+    description:
+      "Strategic consulting to help organizations adopt AI and digital transformation.",
+    icon: "📊",
+    link: "/services/ai-consulting",
+  },
+] as const;

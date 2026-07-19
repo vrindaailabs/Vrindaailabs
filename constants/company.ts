@@ -5,6 +5,9 @@ export const COMPANY: Company = {
 
   tagline: "Intelligence that Works",
 
+  description:
+    "We help businesses eliminate repetitive work using intelligent software, automation and AI-powered solutions.",
+
   email: "info@vrindaailabs.com",
 
   phone: "+91 XXXXX XXXXX",

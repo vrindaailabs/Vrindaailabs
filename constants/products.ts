@@ -4,36 +4,54 @@ export const products: Product[] = [
   {
     title: "AI HR",
     description:
-      "Recruitment and employee management platform.",
+      "Recruitment, onboarding and employee management powered by AI.",
+    icon: "👥",
+    category: "Human Resources",
+    link: "/products/ai-hr",
   },
 
   {
     title: "AI Finance",
     description:
-      "Financial analytics and intelligent reporting.",
+      "Smart financial analytics, forecasting and automated reporting.",
+    icon: "💰",
+    category: "Finance",
+    link: "/products/ai-finance",
   },
 
   {
     title: "AI Hospital",
     description:
-      "Healthcare automation and patient management.",
+      "Healthcare automation, patient records and hospital workflows.",
+    icon: "🏥",
+    category: "Healthcare",
+    link: "/products/ai-hospital",
   },
 
   {
     title: "AI Education",
     description:
-      "Learning management powered by AI.",
+      "AI-powered learning platform for schools, colleges and training.",
+    icon: "🎓",
+    category: "Education",
+    link: "/products/ai-education",
   },
 
   {
     title: "Business AI Assistant",
     description:
-      "Your intelligent business companion.",
+      "An intelligent assistant that supports daily business operations.",
+    icon: "🤖",
+    category: "Productivity",
+    link: "/products/business-ai-assistant",
   },
 
   {
     title: "Enterprise Platform",
     description:
-      "Unified platform connecting every AI product.",
+      "A unified platform connecting every AI product into one ecosystem.",
+    icon: "🌐",
+    category: "Enterprise",
+    link: "/products/enterprise-platform",
   },
 ];

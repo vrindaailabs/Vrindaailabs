@@ -1,26 +1,28 @@
+import Card from "@/components/ui/Card";
+import Container from "@/components/ui/Container";
+import SectionTitle from "@/components/ui/SectionTitle";
+
 import { CONTENT } from "@/constants/content";
 
 export default function CoreValues() {
   return (
     <section className="bg-gray-50 py-24">
-      <div className="mx-auto max-w-7xl px-6">
-        <h2 className="text-center text-4xl font-bold">
-          Core Values
-        </h2>
+      <Container>
+        <SectionTitle
+          title="Core Values"
+          subtitle="The principles that guide everything we build."
+        />
 
         <div className="mt-14 grid gap-8 md:grid-cols-3">
           {CONTENT.about.values.map((value) => (
-            <div
-              key={value}
-              className="rounded-xl border bg-white p-8 text-center"
-            >
+            <Card key={value} className="text-center">
               <h3 className="text-xl font-semibold">
                 {value}
               </h3>
-            </div>
+            </Card>
           ))}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
