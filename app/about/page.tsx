@@ -4,10 +4,11 @@ import Footer from "@/components/layout/Footer";
 import CTA from "@/components/home/CTA";
 
 import AboutHero from "@/components/about/AboutHero";
+import OurStory from "@/components/about/OurStory";
 import MissionVision from "@/components/about/MissionVision";
 import CoreValues from "@/components/about/CoreValues";
-import Journey from "@/components/about/Journey";
-import Leadership from "@/components/about/Leadership";
+import WhyChooseUs from "@/components/about/WhyChooseUs";
+import OurProcess from "@/components/about/OurProcess";
 
 export default function AboutPage() {
   return (
@@ -16,13 +17,15 @@ export default function AboutPage() {
 
       <AboutHero />
 
+      <OurStory />
+
       <MissionVision />
 
       <CoreValues />
 
-      <Journey />
+      <WhyChooseUs />
 
-      <Leadership />
+      <OurProcess />
 
       <CTA />
 

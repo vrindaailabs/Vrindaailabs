@@ -1,13 +1,21 @@
+import ContactHero from "@/components/contact/ContactHero";
+import ContactForm from "@/components/contact/ContactForm";
+import ContactInformation from "@/components/contact/ContactInformation";
+import BusinessHours from "@/components/contact/BusinessHours";
+import OfficeLocation from "@/components/contact/OfficeLocation";
+import FAQ from "@/components/contact/FAQ";
+import ContactCTA from "@/components/contact/ContactCTA";
+
 export default function ContactPage() {
   return (
-    <main className="py-24 text-center">
-      <h1 className="text-5xl font-bold">
-        Contact Us
-      </h1>
-
-      <p className="mt-6 text-gray-600">
-        This page is under development.
-      </p>
-    </main>
+    <>
+      <ContactHero />
+      <ContactForm />
+      <ContactInformation />
+      <BusinessHours />
+      <OfficeLocation />
+      <FAQ />
+      <ContactCTA />
+    </>
   );
 }
