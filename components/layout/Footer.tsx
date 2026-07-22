@@ -115,30 +115,31 @@ import { COMPANY } from "@/constants/company";
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-950 py-16 text-gray-300">
+    <footer className="bg-slate-950 text-gray-300">
       <Container>
+        <div className="grid gap-12 border-b border-slate-800 py-16 md:grid-cols-2 lg:grid-cols-5">
 
-        <div className="grid gap-12 md:grid-cols-4">
-
-          <div>
+          {/* Company */}
+          <div className="lg:col-span-2">
             <Logo size="sm" />
 
-            <p className="mt-4 text-sm text-gray-400">
+            <p className="mt-5 max-w-sm leading-7 text-gray-400">
               {COMPANY.description}
             </p>
           </div>
 
+          {/* Company Links */}
           <div>
-            <h3 className="font-semibold text-white">
+            <h3 className="text-lg font-semibold text-white">
               Company
             </h3>
 
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-5 space-y-3">
               {navigation.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="hover:text-blue-400"
+                    className="transition hover:text-blue-400"
                   >
                     {item.label}
                   </Link>
@@ -147,12 +148,13 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Services */}
           <div>
-            <h3 className="font-semibold text-white">
+            <h3 className="text-lg font-semibold text-white">
               Services
             </h3>
 
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-5 space-y-3">
               {services.map((service) => (
                 <li key={service.title}>
                   {service.title}
@@ -161,26 +163,58 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Products + Legal */}
           <div>
-            <h3 className="font-semibold text-white">
+            <h3 className="text-lg font-semibold text-white">
               Products
             </h3>
 
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-5 space-y-3">
               {products.map((product) => (
                 <li key={product.title}>
                   {product.title}
                 </li>
               ))}
             </ul>
+
+            <h3 className="mt-8 text-lg font-semibold text-white">
+              Legal
+            </h3>
+
+            <ul className="mt-5 space-y-3">
+              <li>
+                <Link
+                  href="/privacy-policy"
+                  className="transition hover:text-blue-400"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/terms"
+                  className="transition hover:text-blue-400"
+                >
+                  Terms &amp; Conditions
+                </Link>
+              </li>
+            </ul>
           </div>
 
         </div>
 
-        <div className="mt-16 border-t border-slate-800 pt-8 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} {COMPANY.name}. All Rights Reserved.
-        </div>
+        <div className="flex flex-col items-center justify-between gap-4 py-8 text-sm text-gray-500 md:flex-row">
 
+          <p>
+            © {new Date().getFullYear()} {COMPANY.name}. All Rights Reserved.
+          </p>
+
+          <p>
+            Built with ❤️ in India
+          </p>
+
+        </div>
       </Container>
     </footer>
   );

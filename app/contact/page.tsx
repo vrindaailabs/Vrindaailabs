@@ -6,6 +6,14 @@ import OfficeLocation from "@/components/contact/OfficeLocation";
 import FAQ from "@/components/contact/FAQ";
 import ContactCTA from "@/components/contact/ContactCTA";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact",
+  description:
+    "Contact Vrinda AI Labs for AI, automation, software development, and digital transformation solutions.",
+};
+
 export default function ContactPage() {
   return (
     <>

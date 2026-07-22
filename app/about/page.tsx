@@ -1,5 +1,4 @@
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import type { Metadata } from "next";
 
 import CTA from "@/components/home/CTA";
 
@@ -10,11 +9,15 @@ import CoreValues from "@/components/about/CoreValues";
 import WhyChooseUs from "@/components/about/WhyChooseUs";
 import OurProcess from "@/components/about/OurProcess";
 
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Learn about Vrinda AI Labs, our mission, vision, values, and how we help businesses grow through AI, automation, enterprise software, and digital transformation.",
+};
+
 export default function AboutPage() {
   return (
     <>
-      <Header />
-
       <AboutHero />
 
       <OurStory />
@@ -28,8 +31,6 @@ export default function AboutPage() {
       <OurProcess />
 
       <CTA />
-
-      <Footer />
     </>
   );
 }
