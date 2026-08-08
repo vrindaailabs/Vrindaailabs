@@ -1,25 +1,29 @@
-import Header from "@/components/layout/Header";
+import type { Metadata } from "next";
+
 import Hero from "@/components/home/Hero";
 import Services from "@/components/home/Services";
-import Products from "@/components/home/Products";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
-import Process from "@/components/home/Process";
-import Testimonials from "@/components/home/Testimonials";
+import Products from "@/components/home/Products";
 import CTA from "@/components/home/CTA";
-import Footer from "@/components/layout/Footer";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "Vrinda AI Labs",
+  description:
+    "Vrinda AI Labs delivers AI-powered software, automation, enterprise solutions, and digital transformation services to help businesses innovate and grow.",
+};
+
+export default function HomePage() {
   return (
-    <main>
-      <Header />
+    <>
       <Hero />
+
       <Services />
-      <Products />
+
       <WhyChooseUs />
-      <Process />
-      <Testimonials />
+
+      <Products />
+
       <CTA />
-      <Footer />
-    </main>
+    </>
   );
 }
