@@ -10,11 +10,9 @@ export default function LoginPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
-
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
 
   async function handleSubmit(
@@ -26,14 +24,14 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const response = await authService.login({
+
+      // Login
+      await authService.login({
         email,
         password,
       });
 
       alert("Login Successful");
-
-      console.log(response);
 
       router.push("/dashboard");
 
@@ -43,7 +41,7 @@ export default function LoginPage() {
 
         setError(
           err.response?.data?.message ??
-            "Login Failed"
+          "Login Failed"
         );
 
       } else {
@@ -54,6 +52,7 @@ export default function LoginPage() {
     } finally {
 
       setLoading(false);
+
     }
   }
 
@@ -72,6 +71,7 @@ export default function LoginPage() {
         >
 
           <div>
+
             <label className="mb-1 block">
               Email
             </label>
@@ -86,9 +86,11 @@ export default function LoginPage() {
               }
               required
             />
+
           </div>
 
           <div>
+
             <label className="mb-1 block">
               Password
             </label>
@@ -103,12 +105,15 @@ export default function LoginPage() {
               }
               required
             />
+
           </div>
 
           {error && (
+
             <p className="text-sm text-red-600">
               {error}
             </p>
+
           )}
 
           <button
@@ -116,9 +121,11 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full rounded bg-blue-600 p-3 text-white hover:bg-blue-700 disabled:opacity-50"
           >
+
             {loading
               ? "Logging in..."
               : "Login"}
+
           </button>
 
         </form>

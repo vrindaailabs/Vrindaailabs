@@ -32,6 +32,9 @@ export default function DashboardPage() {
           dashboardService.getRecentApplications(),
         ]);
 
+        console.log("Statistics Response:", stats);
+        console.log("Recent Response:", recent);
+        
         if (!mounted) return;
 
         setStatistics(stats.data);

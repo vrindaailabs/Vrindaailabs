@@ -3,19 +3,12 @@ export const TOKEN_KEY = "accessToken";
 export const REFRESH_TOKEN_KEY = "refreshToken";
 
 export function isAuthenticated(): boolean {
+  if (typeof window === "undefined") return false;
 
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return !!localStorage.getItem(TOKEN_KEY);
-
+  return !!localStorage.getItem("accessToken");
 }
 
 export function logout() {
-
-  localStorage.removeItem(TOKEN_KEY);
-
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
 }
