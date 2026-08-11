@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { logout } from "@/lib/auth";
 import { dashboardService } from "@/services/dashboard.service";
 
-import {
+import type {
   DashboardStatisticsResponse,
   RecentApplicationResponse,
 } from "@/types/dashboard";
@@ -23,58 +23,73 @@ export default function DashboardPage() {
     useState<RecentApplicationResponse[]>([]);
 
   useEffect(() => {
-    let mounted = true;
 
     async function fetchDashboard() {
+
       try {
-        const [stats, recent] = await Promise.all([
-          dashboardService.getStatistics(),
-          dashboardService.getRecentApplications(),
-        ]);
 
-        console.log("Statistics Response:", stats);
-        console.log("Recent Response:", recent);
-        
-        if (!mounted) return;
+        const [statsResponse, recentResponse] =
+          await Promise.all([
+            dashboardService.getStatistics(),
+            dashboardService.getRecentApplications(),
+          ]);
 
-        setStatistics(stats.data);
-        setRecentApplications(recent.data);
+        setStatistics(statsResponse.data);
+
+        setRecentApplications(recentResponse.data);
+
       } catch (error) {
-        console.error("Dashboard Error", error);
+
+        console.error("Dashboard Error:", error);
+
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+
+        setLoading(false);
+
       }
+
     }
 
     fetchDashboard();
 
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   function handleLogout() {
+
     logout();
+
     router.replace("/login");
+
   }
 
   if (loading) {
+
     return (
-      <div className="flex min-h-screen items-center justify-center text-xl">
-        Loading Dashboard...
+
+      <div className="flex min-h-screen items-center justify-center">
+
+        <h2 className="text-2xl font-semibold">
+
+          Loading Dashboard...
+
+        </h2>
+
       </div>
+
     );
+
   }
 
   return (
+
     <div className="min-h-screen bg-gray-100">
 
       <header className="flex items-center justify-between border-b bg-white px-10 py-6 shadow">
 
         <h1 className="text-3xl font-bold">
+
           Vrinda AI Labs Dashboard
+
         </h1>
 
         <button
@@ -90,37 +105,37 @@ export default function DashboardPage() {
 
         <DashboardCard
           title="Applications"
-          value={statistics?.totalApplications}
+          value={statistics?.totalApplications ?? 0}
         />
 
         <DashboardCard
           title="Applied"
-          value={statistics?.applied}
+          value={statistics?.applied ?? 0}
         />
 
         <DashboardCard
           title="Shortlisted"
-          value={statistics?.shortlisted}
+          value={statistics?.shortlisted ?? 0}
         />
 
         <DashboardCard
           title="Interview"
-          value={statistics?.interview}
+          value={statistics?.interview ?? 0}
         />
 
         <DashboardCard
           title="Selected"
-          value={statistics?.selected}
+          value={statistics?.selected ?? 0}
         />
 
         <DashboardCard
           title="Hired"
-          value={statistics?.hired}
+          value={statistics?.hired ?? 0}
         />
 
         <DashboardCard
           title="Rejected"
-          value={statistics?.rejected}
+          value={statistics?.rejected ?? 0}
         />
 
       </div>
@@ -128,7 +143,9 @@ export default function DashboardPage() {
       <div className="mx-10 mb-10 rounded-xl bg-white p-6 shadow">
 
         <h2 className="mb-6 text-2xl font-semibold">
+
           Recent Applications
+
         </h2>
 
         <table className="w-full border-collapse">
@@ -137,21 +154,13 @@ export default function DashboardPage() {
 
             <tr className="border-b">
 
-              <th className="py-3 text-left">
-                Name
-              </th>
+              <th className="py-3 text-left">Name</th>
 
-              <th className="text-left">
-                Email
-              </th>
+              <th className="py-3 text-left">Email</th>
 
-              <th className="text-left">
-                Job
-              </th>
+              <th className="py-3 text-left">Job</th>
 
-              <th className="text-left">
-                Status
-              </th>
+              <th className="py-3 text-left">Status</th>
 
             </tr>
 
@@ -160,6 +169,7 @@ export default function DashboardPage() {
           <tbody>
 
             {recentApplications.length === 0 ? (
+
               <tr>
 
                 <td
@@ -170,31 +180,44 @@ export default function DashboardPage() {
                 </td>
 
               </tr>
+
             ) : (
+
               recentApplications.map((application) => (
+
                 <tr
                   key={application.id}
                   className="border-b"
                 >
 
                   <td className="py-3">
+
                     {application.fullName}
+
                   </td>
 
                   <td>
+
                     {application.email}
+
                   </td>
 
                   <td>
+
                     {application.jobTitle}
+
                   </td>
 
                   <td>
+
                     {application.candidateStatus}
+
                   </td>
 
                 </tr>
+
               ))
+
             )}
 
           </tbody>
@@ -204,29 +227,45 @@ export default function DashboardPage() {
       </div>
 
     </div>
+
   );
+
 }
 
 interface DashboardCardProps {
+
   title: string;
-  value?: number;
+
+  value: number;
+
 }
 
 function DashboardCard({
+
   title,
+
   value,
+
 }: DashboardCardProps) {
+
   return (
+
     <div className="rounded-xl bg-white p-6 shadow">
 
       <p className="text-gray-500">
+
         {title}
+
       </p>
 
       <h2 className="mt-3 text-4xl font-bold">
-        {value ?? 0}
+
+        {value}
+
       </h2>
 
     </div>
+
   );
+
 }
