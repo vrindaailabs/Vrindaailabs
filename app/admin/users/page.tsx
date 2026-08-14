@@ -15,7 +15,6 @@ import type {
 } from "@/types/user";
 
 export default function UsersPage() {
-
   const [users, setUsers] =
     useState<User[]>([]);
 
@@ -32,216 +31,180 @@ export default function UsersPage() {
     useState<User | null>(null);
 
   useEffect(() => {
-
     let cancelled = false;
 
     async function fetchUsers() {
-
       try {
-
         const response =
           await userService.getAll();
 
         if (!cancelled) {
-
           setUsers(response.data);
-
         }
-
       } catch (error) {
-
-        console.error(error);
-
+        console.error(
+          "Failed to load users:",
+          error
+        );
       } finally {
-
         if (!cancelled) {
-
           setLoading(false);
-
         }
-
       }
-
     }
 
     fetchUsers();
 
     return () => {
-
       cancelled = true;
-
     };
-
   }, []);
 
   async function loadUsers() {
+    try {
+      const response =
+        await userService.getAll();
 
-    const response =
-      await userService.getAll();
-
-    setUsers(response.data);
-
+      setUsers(response.data);
+    } catch (error) {
+      console.error(
+        "Failed to reload users:",
+        error
+      );
+    }
   }
 
   function handleCreate() {
-
     setSelectedUser(null);
-
     setDialogOpen(true);
-
   }
 
   function handleEdit(user: User) {
-
     setSelectedUser(user);
-
     setDialogOpen(true);
-
   }
 
   function handleDelete(user: User) {
-
     setSelectedUser(user);
-
     setDeleteOpen(true);
-
   }
 
   async function handleSubmit(
-    request: UserRequest
+    request:
+      | UserRequest
+      | UpdateUserRequest
   ) {
-
     if (selectedUser) {
-
       const updateRequest: UpdateUserRequest = {
-
         fullName: request.fullName,
-
         email: request.email,
-
         role: request.role,
-
-        active: request.active,
-
+        enabled: request.enabled,
       };
 
       await userService.update(
         selectedUser.id,
         updateRequest
       );
-
     } else {
+      const createRequest =
+        request as UserRequest;
 
-      await userService.create(request);
-
+      await userService.create(
+        createRequest
+      );
     }
 
     setDialogOpen(false);
+    setSelectedUser(null);
 
     await loadUsers();
-
   }
 
   async function confirmDelete() {
-
-    if (!selectedUser) return;
+    if (!selectedUser) {
+      return;
+    }
 
     await userService.delete(
       selectedUser.id
     );
 
     setDeleteOpen(false);
+    setSelectedUser(null);
 
     await loadUsers();
-
   }
 
   if (loading) {
-
     return (
-
       <div className="flex justify-center p-10">
-
-        Loading Users...
-
+        <p className="text-gray-600">
+          Loading Users...
+        </p>
       </div>
-
     );
-
   }
 
   return (
-
     <div className="space-y-8 p-8">
+
+      {/* Header */}
 
       <div className="flex items-center justify-between">
 
         <div>
-
           <h1 className="text-3xl font-bold">
-
             User Management
-
           </h1>
 
           <p className="mt-2 text-gray-500">
-
             Manage administrators and users.
-
           </p>
-
         </div>
 
         <button
-
+          type="button"
           onClick={handleCreate}
-
           className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
-
         >
-
           + Add User
-
         </button>
 
       </div>
 
+      {/* Users Table */}
+
       <UserTable
-
         users={users}
-
         onEdit={handleEdit}
-
         onDelete={handleDelete}
-
       />
+
+      {/* Create / Edit Dialog */}
 
       <UserDialog
-
         open={dialogOpen}
-
         user={selectedUser}
-
-        onClose={() => setDialogOpen(false)}
-
+        onClose={() => {
+          setDialogOpen(false);
+          setSelectedUser(null);
+        }}
         onSubmit={handleSubmit}
-
       />
 
+      {/* Delete Dialog */}
+
       <DeleteUserDialog
-
         open={deleteOpen}
-
         user={selectedUser}
-
-        onClose={() => setDeleteOpen(false)}
-
+        onClose={() => {
+          setDeleteOpen(false);
+          setSelectedUser(null);
+        }}
         onConfirm={confirmDelete}
-
       />
 
     </div>
-
   );
-
 }

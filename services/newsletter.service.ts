@@ -7,33 +7,26 @@ import type {
 } from "@/types/newsletter";
 
 export const newsletterService = {
-
   async subscribe(
     request: NewsletterRequest
   ): Promise<NewsletterApiResponse> {
-
-    const response =
-      await api.post(
-        "/newsletter",
-        request
-      );
+    const response = await api.post(
+      "/newsletter",
+      request
+    );
 
     return response.data;
   },
 
   async getAll(): Promise<NewsletterListApiResponse> {
-
-    const response =
-      await api.get("/newsletter");
+    const response = await api.get("/newsletter");
 
     return response.data;
   },
 
   async delete(id: number) {
-
-    return api.delete(
-      `/newsletter/${id}`
-    );
+    return api.delete(`/newsletter/${id}`);
   },
-
 };
+
+export default newsletterService;

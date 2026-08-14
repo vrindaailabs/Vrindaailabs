@@ -112,6 +112,8 @@ import { navigation } from "@/constants/navigation";
 import { services } from "@/constants/services";
 import { products } from "@/constants/products";
 import { COMPANY } from "@/constants/company";
+import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
+
 
 export default function Footer() {
   return (
@@ -119,13 +121,15 @@ export default function Footer() {
       <Container>
         <div className="grid gap-12 border-b border-slate-800 py-16 md:grid-cols-2 lg:grid-cols-5">
 
-          {/* Company */}
+          {/* Company + Newsletter */}
           <div className="lg:col-span-2">
             <Logo size="sm" />
 
             <p className="mt-5 max-w-sm leading-7 text-gray-400">
               {COMPANY.description}
             </p>
+
+            <NewsletterSignup />
           </div>
 
           {/* Company Links */}

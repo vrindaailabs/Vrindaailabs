@@ -13,9 +13,14 @@ import type {
 export const login = async (
   request: LoginRequest
 ): Promise<ApiResponse<AuthenticationResponse>> => {
-  const response = await api.post<
-    ApiResponse<AuthenticationResponse>
-  >("/auth/login", request);
+
+  const response =
+    await api.post<
+      ApiResponse<AuthenticationResponse>
+    >(
+      "/auth/login",
+      request
+    );
 
   return response.data;
 };
@@ -26,9 +31,14 @@ export const login = async (
 export const register = async (
   request: RegisterRequest
 ): Promise<ApiResponse<AuthenticationResponse>> => {
-  const response = await api.post<
-    ApiResponse<AuthenticationResponse>
-  >("/auth/register", request);
+
+  const response =
+    await api.post<
+      ApiResponse<AuthenticationResponse>
+    >(
+      "/auth/register",
+      request
+    );
 
   return response.data;
 };
@@ -39,9 +49,17 @@ export const register = async (
 export const logout = async (
   refreshToken: string
 ) => {
-  const response = await api.post(
-    `/auth/logout?refreshToken=${refreshToken}`
-  );
+
+  const response =
+    await api.post(
+      "/auth/logout",
+      null,
+      {
+        params: {
+          refreshToken,
+        },
+      }
+    );
 
   return response.data;
 };
@@ -51,12 +69,22 @@ export const logout = async (
  */
 export const refreshToken = async (
   refreshToken: string
-): Promise<ApiResponse<AuthenticationResponse>> => {
-  const response = await api.post<
-    ApiResponse<AuthenticationResponse>
-  >(
-    `/auth/refresh-token?refreshToken=${refreshToken}`
-  );
+): Promise<
+  ApiResponse<AuthenticationResponse>
+> => {
+
+  const response =
+    await api.post<
+      ApiResponse<AuthenticationResponse>
+    >(
+      "/auth/refresh-token",
+      null,
+      {
+        params: {
+          refreshToken,
+        },
+      }
+    );
 
   return response.data;
 };

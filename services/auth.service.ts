@@ -8,6 +8,9 @@ import type {
 
 class AuthService {
 
+  /**
+   * Login User
+   */
   async login(
     request: LoginRequest
   ): Promise<AuthenticationResponse> {
@@ -30,6 +33,9 @@ class AuthService {
     return auth;
   }
 
+  /**
+   * Register User
+   */
   async register(
     request: RegisterRequest
   ): Promise<AuthenticationResponse> {
@@ -52,39 +58,93 @@ class AuthService {
     return auth;
   }
 
-  async logout() {
+  /**
+   * Logout User
+   *
+   * Even if backend logout fails,
+   * local authentication must always be cleared.
+   */
+  async logout(): Promise<void> {
 
     const refreshToken =
       localStorage.getItem(
         "refreshToken"
       );
 
-    if (refreshToken) {
-      await authApi.logout(
-        refreshToken
+    try {
+
+      if (refreshToken) {
+
+        await authApi.logout(
+          refreshToken
+        );
+
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "Backend logout failed. Clearing local session anyway.",
+        error
+      );
+
+    } finally {
+
+      localStorage.removeItem(
+        "accessToken"
+      );
+
+      localStorage.removeItem(
+        "refreshToken"
       );
     }
-
-    localStorage.removeItem(
-      "accessToken"
-    );
-
-    localStorage.removeItem(
-      "refreshToken"
-    );
   }
 
-  isAuthenticated() {
+  /**
+   * Check Authentication
+   */
+  isAuthenticated(): boolean {
+
+    if (
+      typeof window === "undefined"
+    ) {
+      return false;
+    }
 
     return !!localStorage.getItem(
       "accessToken"
     );
   }
 
-  getToken() {
+  /**
+   * Get Access Token
+   */
+  getToken(): string | null {
+
+    if (
+      typeof window === "undefined"
+    ) {
+      return null;
+    }
 
     return localStorage.getItem(
       "accessToken"
+    );
+  }
+
+  /**
+   * Get Refresh Token
+   */
+  getRefreshToken(): string | null {
+
+    if (
+      typeof window === "undefined"
+    ) {
+      return null;
+    }
+
+    return localStorage.getItem(
+      "refreshToken"
     );
   }
 }

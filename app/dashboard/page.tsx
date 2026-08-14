@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { logout } from "@/lib/auth";
+// import { logout } from "@/lib/auth";
+import authService from "@/services/auth.service";
 import { dashboardService } from "@/services/dashboard.service";
 
 import type {
@@ -54,12 +55,19 @@ export default function DashboardPage() {
 
   }, []);
 
-  function handleLogout() {
+  async function handleLogout() {
 
-    logout();
+    try {
 
-    router.replace("/login");
+      await authService.logout();
 
+    } finally {
+
+      router.replace("/login");
+
+      router.refresh();
+
+    }
   }
 
   if (loading) {
