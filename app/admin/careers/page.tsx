@@ -1,199 +1,373 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/lib/api/axios";
 
-interface CareerApplication {
-  id: number;
-  fullName: string;
-  email: string;
-  phoneNumber: string;
-  jobTitle: string;
-  experience: string;
-  candidateStatus: string;
-  appliedAt: string;
-}
+import CareerTable from "@/components/admin/careers/CareerTable";
+import CareerViewModal from "@/components/admin/careers/CareerViewModal";
+import DeleteDialog from "@/components/admin/careers/DeleteDialog";
+import StatusDialog from "@/components/admin/careers/StatusDialog";
+
+import { careerService } from "@/services/career.service";
+
+import type {
+  CareerApplication,
+  CandidateStatus,
+} from "@/types/career-application";
 
 export default function CareersPage() {
+  const [applications, setApplications] = useState<
+    CareerApplication[]
+  >([]);
 
-  const [applications, setApplications] =
-    useState<CareerApplication[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [selectedApplication, setSelectedApplication] =
+    useState<CareerApplication | null>(null);
 
+  const [viewOpen, setViewOpen] = useState(false);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const [statusOpen, setStatusOpen] = useState(false);
+
+  const [statusApplicationId, setStatusApplicationId] =
+    useState<number | null>(null);
+
+  const [statusCurrent, setStatusCurrent] =
+    useState<CandidateStatus>("APPLIED");
+
+  const [actionLoading, setActionLoading] =
+    useState(false);
+
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Load all career applications
+   */
   async function loadApplications() {
-
     try {
+      setError(null);
 
       const response =
-        await api.get("/careers");
+        await careerService.getAllApplications();
 
-      setApplications(response.data.data);
-
+      setApplications(response.data);
     } catch (error) {
+      console.error(
+        "Failed to load career applications:",
+        error
+      );
 
-      console.error(error);
-
+      setError(
+        "Unable to load career applications."
+      );
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
-//   useEffect(() => {
+  /**
+   * Initial load
+   */
+  useEffect(() => {
+    let cancelled = false;
 
-//     const fetchData = async () => {
-//       await loadApplications();
-//     };
+    async function fetchApplications() {
+      try {
+        const response =
+          await careerService.getAllApplications();
 
-//     fetchData();
+        if (!cancelled) {
+          setApplications(response.data);
+          setError(null);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to load career applications:",
+          error
+        );
 
-//   }, []);
-    useEffect(() => {
+        if (!cancelled) {
+          setError(
+            "Unable to load career applications."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
 
-        const fetchData = async () => {
+    fetchApplications();
 
-            try {
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-                const response = await api.get("/careers");
+  /**
+   * View application
+   */
+  async function handleView(id: number) {
+    try {
+      setActionLoading(true);
+      setError(null);
 
-                setApplications(response.data.data);
+      const response =
+        await careerService.getApplication(id);
 
-            } catch (error) {
+      setSelectedApplication(response.data);
+      setViewOpen(true);
+    } catch (error) {
+      console.error(
+        "Failed to load application:",
+        error
+      );
 
-              console.error(error);
+      setError(
+        "Unable to load candidate details."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
-            } finally {
+  /**
+   * Download resume
+   */
+  async function handleResume(id: number) {
+    try {
+      setActionLoading(true);
+      setError(null);
 
-              setLoading(false);
+      const blob =
+        await careerService.downloadResume(id);
 
-            }
+      const url =
+        window.URL.createObjectURL(blob);
 
-        };
+      const link =
+        document.createElement("a");
 
-        fetchData();
+      link.href = url;
 
-    }, []);
+      const application =
+        applications.find(
+          (item) => item.id === id
+        );
 
+      link.download =
+        application?.resumeFileName ||
+        "resume";
 
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(
+        "Failed to download resume:",
+        error
+      );
+
+      setError(
+        "Unable to download resume."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  /**
+   * Open status dialog
+   */
+  function handleStatus(id: number) {
+    const application =
+      applications.find(
+        (item) => item.id === id
+      );
+
+    if (!application) {
+      return;
+    }
+
+    setStatusApplicationId(id);
+
+    setStatusCurrent(
+      application.candidateStatus
+    );
+
+    setStatusOpen(true);
+  }
+
+  /**
+   * Refresh after status update
+   */
+  async function handleStatusSuccess() {
+    await loadApplications();
+  }
+
+  /**
+   * Open delete confirmation
+   */
+  function handleDelete(id: number) {
+    const application =
+      applications.find(
+        (item) => item.id === id
+      );
+
+    if (!application) {
+      return;
+    }
+
+    setSelectedApplication(application);
+
+    setDeleteOpen(true);
+  }
+
+  /**
+   * Confirm delete
+   */
+  async function confirmDelete() {
+    if (!selectedApplication) {
+      return;
+    }
+
+    try {
+      setActionLoading(true);
+      setError(null);
+
+      await careerService.deleteApplication(
+        selectedApplication.id
+      );
+
+      setDeleteOpen(false);
+
+      setSelectedApplication(null);
+
+      await loadApplications();
+    } catch (error) {
+      console.error(
+        "Failed to delete application:",
+        error
+      );
+
+      setError(
+        "Unable to delete application."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  /**
+   * Loading state
+   */
   if (loading) {
-
-    return <p className="p-6">Loading...</p>;
-
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-gray-500">
+          Loading Career Applications...
+        </div>
+      </div>
+    );
   }
 
   return (
+    <div className="space-y-8 p-8">
 
-    <div className="p-8">
+      {/* Header */}
 
-      <h1 className="mb-6 text-3xl font-bold">
-        Career Applications
-      </h1>
+      <div className="flex items-center justify-between">
 
-      <table className="w-full border">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">
+            Career Applications
+          </h1>
 
-        <thead>
+          <p className="mt-2 text-gray-500">
+            Manage candidates, resumes and
+            recruitment status.
+          </p>
+        </div>
 
-          <tr className="bg-gray-100">
+        <div className="rounded-lg bg-slate-100 px-4 py-2">
+          <span className="text-sm text-gray-500">
+            Total Applications
+          </span>
 
-            <th className="border p-3">Name</th>
+          <span className="ml-2 font-bold text-slate-900">
+            {applications.length}
+          </span>
+        </div>
 
-            <th className="border p-3">Email</th>
+      </div>
 
-            <th className="border p-3">Phone</th>
+      {/* Error */}
 
-            <th className="border p-3">Job</th>
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+          {error}
+        </div>
+      )}
 
-            <th className="border p-3">Experience</th>
+      {/* Global action loading */}
 
-            <th className="border p-3">Status</th>
+      {actionLoading && (
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
+          Processing request...
+        </div>
+      )}
 
-            <th className="border p-3">Applied</th>
+      {/* Applications */}
 
-            <th className="border p-3">
-              Actions
-            </th>
+      <CareerTable
+        applications={applications}
+        onView={handleView}
+        onResume={handleResume}
+        onStatus={handleStatus}
+        onDelete={handleDelete}
+      />
 
-          </tr>
+      {/* View */}
 
-        </thead>
+      <CareerViewModal
+        open={viewOpen}
+        application={selectedApplication}
+        onClose={() => {
+          setViewOpen(false);
+          setSelectedApplication(null);
+        }}
+      />
 
-        <tbody>
+      {/* Status */}
 
-          {applications.map((app) => (
+      <StatusDialog
+        open={statusOpen}
+        applicationId={statusApplicationId}
+        currentStatus={statusCurrent}
+        onClose={() => {
+          setStatusOpen(false);
+          setStatusApplicationId(null);
+        }}
+        onSuccess={handleStatusSuccess}
+      />
 
-            <tr key={app.id}>
+      {/* Delete */}
 
-              <td className="border p-3">
-                {app.fullName}
-              </td>
-
-              <td className="border p-3">
-                {app.email}
-              </td>
-
-              <td className="border p-3">
-                {app.phoneNumber}
-              </td>
-
-              <td className="border p-3">
-                {app.jobTitle}
-              </td>
-
-              <td className="border p-3">
-                {app.experience}
-              </td>
-
-              <td className="border p-3">
-                {app.candidateStatus}
-              </td>
-
-              <td className="border p-3">
-                {new Date(app.appliedAt)
-                  .toLocaleDateString()}
-              </td>
-
-              <td className="border p-3 space-x-2">
-
-                <button
-                  className="rounded bg-blue-600 px-3 py-1 text-white"
-                >
-                  View
-                </button>
-
-                <button
-                  className="rounded bg-green-600 px-3 py-1 text-white"
-                >
-                  Resume
-                </button>
-
-                <button
-                  className="rounded bg-yellow-500 px-3 py-1 text-white"
-                >
-                  Status
-                </button>
-
-                <button
-                  className="rounded bg-red-600 px-3 py-1 text-white"
-                >
-                  Delete
-                </button>
-
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
+      <DeleteDialog
+        open={deleteOpen}
+        onClose={() => {
+          setDeleteOpen(false);
+          setSelectedApplication(null);
+        }}
+        onDelete={confirmDelete}
+      />
 
     </div>
-
   );
-
 }

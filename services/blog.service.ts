@@ -8,13 +8,28 @@ import type {
 
 class BlogService {
 
+  /**
+   * Admin:
+   * Get all blogs including drafts.
+   */
   async getAll(): Promise<BlogListResponse> {
 
     const response =
       await api.get("/blogs");
 
     return response.data;
+  }
 
+  /**
+   * Public:
+   * Get published blogs only.
+   */
+  async getPublished(): Promise<BlogListResponse> {
+
+    const response =
+      await api.get("/blogs/published");
+
+    return response.data;
   }
 
   async getById(
@@ -25,7 +40,6 @@ class BlogService {
       await api.get(`/blogs/${id}`);
 
     return response.data;
-
   }
 
   async create(
@@ -39,7 +53,6 @@ class BlogService {
       );
 
     return response.data;
-
   }
 
   async update(
@@ -54,7 +67,6 @@ class BlogService {
       );
 
     return response.data;
-
   }
 
   async delete(
@@ -64,9 +76,7 @@ class BlogService {
     await api.delete(
       `/blogs/${id}`
     );
-
   }
-
 }
 
 export const blogService =

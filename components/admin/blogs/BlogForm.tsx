@@ -26,9 +26,11 @@ export default function BlogForm({
   onSubmit,
   onCancel,
 }: BlogFormProps) {
+
   const [form, setForm] =
     useState<BlogRequest>({
-      title: initialData?.title ?? "",
+      title:
+        initialData?.title ?? "",
 
       shortDescription:
         initialData?.shortDescription ?? "",
@@ -38,6 +40,9 @@ export default function BlogForm({
 
       imageUrl:
         initialData?.imageUrl ?? "",
+
+      published:
+        initialData?.published ?? true,
     });
 
   const [saving, setSaving] =
@@ -56,10 +61,12 @@ export default function BlogForm({
     useState(false);
 
   async function loadMedia() {
+
     setMediaLoading(true);
     setMediaError("");
 
     try {
+
       const response =
         await mediaService.getAll();
 
@@ -73,14 +80,19 @@ export default function BlogForm({
         );
 
       setMedia(images);
+
     } catch (error) {
+
       console.error(error);
 
       setMediaError(
         "Failed to load media library."
       );
+
     } finally {
+
       setMediaLoading(false);
+
     }
   }
 
@@ -90,6 +102,7 @@ export default function BlogForm({
       HTMLTextAreaElement
     >
   ) {
+
     const {
       name,
       value,
@@ -101,7 +114,18 @@ export default function BlogForm({
     }));
   }
 
+  function handlePublishedChange(
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
+
+    setForm((previous) => ({
+      ...previous,
+      published: e.target.checked,
+    }));
+  }
+
   function handleOpenMedia() {
+
     setMediaOpen(true);
 
     if (media.length === 0) {
@@ -112,8 +136,10 @@ export default function BlogForm({
   function handleSelectMedia(
     selectedMedia: Media
   ) {
+
     setForm((previous) => ({
       ...previous,
+
       imageUrl:
         mediaService.getFileUrl(
           selectedMedia
@@ -124,6 +150,7 @@ export default function BlogForm({
   }
 
   function handleRemoveImage() {
+
     setForm((previous) => ({
       ...previous,
       imageUrl: "",
@@ -133,14 +160,19 @@ export default function BlogForm({
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ) {
+
     e.preventDefault();
 
     setSaving(true);
 
     try {
+
       await onSubmit(form);
+
     } finally {
+
       setSaving(false);
+
     }
   }
 
@@ -154,6 +186,7 @@ export default function BlogForm({
         {/* Title */}
 
         <div>
+
           <label
             htmlFor="title"
             className="mb-2 block font-medium"
@@ -169,11 +202,13 @@ export default function BlogForm({
             required
             className="w-full rounded-lg border px-4 py-3"
           />
+
         </div>
 
         {/* Short Description */}
 
         <div>
+
           <label
             htmlFor="shortDescription"
             className="mb-2 block font-medium"
@@ -188,13 +223,20 @@ export default function BlogForm({
             onChange={handleChange}
             required
             rows={3}
+            maxLength={500}
             className="w-full rounded-lg border px-4 py-3"
           />
+
+          <p className="mt-1 text-xs text-gray-500">
+            {form.shortDescription.length}/500
+          </p>
+
         </div>
 
         {/* Content */}
 
         <div>
+
           <label
             htmlFor="content"
             className="mb-2 block font-medium"
@@ -211,16 +253,44 @@ export default function BlogForm({
             rows={10}
             className="w-full rounded-lg border px-4 py-3"
           />
+
+        </div>
+
+        {/* Published */}
+
+        <div className="rounded-lg border bg-gray-50 p-4">
+
+          <label className="flex cursor-pointer items-center gap-3">
+
+            <input
+              type="checkbox"
+              checked={form.published}
+              onChange={handlePublishedChange}
+              className="h-4 w-4"
+            />
+
+            <span className="font-medium">
+              Publish this blog
+            </span>
+
+          </label>
+
+          <p className="mt-1 ml-7 text-sm text-gray-500">
+            Uncheck to save this blog as a draft.
+          </p>
+
         </div>
 
         {/* Featured Image */}
 
         <div>
+
           <label className="mb-2 block font-medium">
             Featured Image
           </label>
 
           {form.imageUrl ? (
+
             <div className="rounded-lg border p-4">
 
               <div className="flex items-start gap-4">
@@ -266,13 +336,16 @@ export default function BlogForm({
               </div>
 
             </div>
+
           ) : (
+
             <button
               type="button"
               onClick={handleOpenMedia}
               className="flex w-full items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 text-center transition hover:border-blue-500 hover:bg-blue-50"
             >
               <div>
+
                 <p className="font-medium text-gray-700">
                   Choose from Media Library
                 </p>
@@ -280,9 +353,12 @@ export default function BlogForm({
                 <p className="mt-1 text-sm text-gray-500">
                   Select an uploaded image
                 </p>
+
               </div>
             </button>
+
           )}
+
         </div>
 
         {/* Actions */}
@@ -317,15 +393,15 @@ export default function BlogForm({
       {/* Media Library */}
 
       {mediaOpen && (
+
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
 
           <div className="max-h-[85vh] w-full max-w-5xl overflow-hidden rounded-xl bg-white shadow-2xl">
 
-            {/* Header */}
-
             <div className="flex items-center justify-between border-b p-6">
 
               <div>
+
                 <h2 className="text-xl font-bold">
                   Select Featured Image
                 </h2>
@@ -333,6 +409,7 @@ export default function BlogForm({
                 <p className="mt-1 text-sm text-gray-500">
                   Choose an image from your Media Library.
                 </p>
+
               </div>
 
               <button
@@ -346,8 +423,6 @@ export default function BlogForm({
               </button>
 
             </div>
-
-            {/* Content */}
 
             <div className="max-h-[65vh] overflow-y-auto p-6">
 
@@ -371,6 +446,7 @@ export default function BlogForm({
               {!mediaLoading &&
                 !mediaError &&
                 media.length === 0 && (
+
                   <div className="rounded-lg border bg-gray-50 p-10 text-center">
 
                     <p className="font-medium text-gray-700">
@@ -386,6 +462,7 @@ export default function BlogForm({
 
               {!mediaLoading &&
                 media.length > 0 && (
+
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
 
                     {media.map((item) => {
@@ -400,6 +477,7 @@ export default function BlogForm({
                         imageUrl;
 
                       return (
+
                         <button
                           key={item.id}
                           type="button"
@@ -440,9 +518,11 @@ export default function BlogForm({
                             </p>
 
                             {item.folder && (
+
                               <p className="mt-1 truncate text-xs text-gray-500">
                                 {item.folder}
                               </p>
+
                             )}
 
                           </div>
@@ -455,8 +535,6 @@ export default function BlogForm({
                 )}
 
             </div>
-
-            {/* Footer */}
 
             <div className="flex justify-end border-t p-4">
 

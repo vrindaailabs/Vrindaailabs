@@ -3,6 +3,8 @@ import * as authApi from "@/lib/api/auth";
 import type {
   LoginRequest,
   RegisterRequest,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
   AuthenticationResponse,
 } from "@/types/auth";
 
@@ -20,15 +22,24 @@ class AuthService {
 
     const auth = response.data;
 
-    localStorage.setItem(
-      "accessToken",
-      auth.token
-    );
+    if (!auth?.token || !auth?.refreshToken) {
+      throw new Error(
+        "Authentication tokens were not returned by the server."
+      );
+    }
 
-    localStorage.setItem(
-      "refreshToken",
-      auth.refreshToken
-    );
+    if (typeof window !== "undefined") {
+
+      localStorage.setItem(
+        "accessToken",
+        auth.token
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        auth.refreshToken
+      );
+    }
 
     return auth;
   }
@@ -45,15 +56,105 @@ class AuthService {
 
     const auth = response.data;
 
+    if (!auth?.token || !auth?.refreshToken) {
+      throw new Error(
+        "Authentication tokens were not returned by the server."
+      );
+    }
+
+    if (typeof window !== "undefined") {
+
+      localStorage.setItem(
+        "accessToken",
+        auth.token
+      );
+
+      localStorage.setItem(
+        "refreshToken",
+        auth.refreshToken
+      );
+    }
+
+    return auth;
+  }
+
+  /**
+   * Forgot Password
+   */
+  async forgotPassword(
+    request: ForgotPasswordRequest
+  ): Promise<string> {
+
+    const response =
+      await authApi.forgotPassword(request);
+
+    return response.message;
+  }
+
+  /**
+   * Reset Password
+   */
+  async resetPassword(
+    request: ResetPasswordRequest
+  ): Promise<string> {
+
+    const response =
+      await authApi.resetPassword(request);
+
+    return response.message;
+  }
+
+  /**
+   * Refresh Access Token
+   */
+  async refreshAccessToken(): Promise<AuthenticationResponse> {
+
+    if (typeof window === "undefined") {
+      throw new Error(
+        "Token refresh is only available in the browser."
+      );
+    }
+
+    const refreshToken =
+      localStorage.getItem("refreshToken");
+
+    if (!refreshToken) {
+      throw new Error(
+        "Refresh token not found."
+      );
+    }
+
+    const response =
+      await authApi.refreshToken(
+        refreshToken
+      );
+
+    const auth = response.data;
+
+    if (!auth?.token) {
+      throw new Error(
+        "New access token was not returned."
+      );
+    }
+
     localStorage.setItem(
       "accessToken",
       auth.token
     );
 
-    localStorage.setItem(
-      "refreshToken",
-      auth.refreshToken
-    );
+    /*
+     * Backend currently returns the existing
+     * refresh token as well.
+     *
+     * Store it again so the client remains
+     * synchronized with the backend response.
+     */
+    if (auth.refreshToken) {
+      localStorage.setItem(
+        "refreshToken",
+        auth.refreshToken
+      );
+    }
 
     return auth;
   }
@@ -61,10 +162,14 @@ class AuthService {
   /**
    * Logout User
    *
-   * Even if backend logout fails,
-   * local authentication must always be cleared.
+   * Backend logout is attempted first.
+   * Local tokens are always removed.
    */
   async logout(): Promise<void> {
+
+    if (typeof window === "undefined") {
+      return;
+    }
 
     const refreshToken =
       localStorage.getItem(
@@ -78,7 +183,6 @@ class AuthService {
         await authApi.logout(
           refreshToken
         );
-
       }
 
     } catch (error) {
@@ -90,14 +194,26 @@ class AuthService {
 
     } finally {
 
-      localStorage.removeItem(
-        "accessToken"
-      );
-
-      localStorage.removeItem(
-        "refreshToken"
-      );
+      this.clearSession();
     }
+  }
+
+  /**
+   * Clear Local Authentication
+   */
+  clearSession(): void {
+
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    localStorage.removeItem(
+      "accessToken"
+    );
+
+    localStorage.removeItem(
+      "refreshToken"
+    );
   }
 
   /**
@@ -105,14 +221,14 @@ class AuthService {
    */
   isAuthenticated(): boolean {
 
-    if (
-      typeof window === "undefined"
-    ) {
+    if (typeof window === "undefined") {
       return false;
     }
 
-    return !!localStorage.getItem(
-      "accessToken"
+    return Boolean(
+      localStorage.getItem(
+        "accessToken"
+      )
     );
   }
 
@@ -121,9 +237,7 @@ class AuthService {
    */
   getToken(): string | null {
 
-    if (
-      typeof window === "undefined"
-    ) {
+    if (typeof window === "undefined") {
       return null;
     }
 
@@ -137,9 +251,7 @@ class AuthService {
    */
   getRefreshToken(): string | null {
 
-    if (
-      typeof window === "undefined"
-    ) {
+    if (typeof window === "undefined") {
       return null;
     }
 

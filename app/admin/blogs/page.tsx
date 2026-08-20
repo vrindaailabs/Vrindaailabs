@@ -32,7 +32,7 @@ export default function BlogsPage() {
 
   useEffect(() => {
 
-    let ignore = false;
+    let cancelled = false;
 
     async function fetchBlogs() {
 
@@ -41,34 +41,30 @@ export default function BlogsPage() {
         const response =
           await blogService.getAll();
 
-        if (!ignore) {
-
+        if (!cancelled) {
           setBlogs(response.data);
-
-          setLoading(false);
-
         }
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Failed to load blogs:",
+          error
+        );
 
-        if (!ignore) {
+      } finally {
 
+        if (!cancelled) {
           setLoading(false);
-
         }
 
       }
-
     }
 
-    fetchBlogs();
+    void fetchBlogs();
 
     return () => {
-
-      ignore = true;
-
+      cancelled = true;
     };
 
   }, []);
@@ -79,31 +75,24 @@ export default function BlogsPage() {
       await blogService.getAll();
 
     setBlogs(response.data);
-
   }
 
   function handleCreate() {
 
     setSelectedBlog(null);
-
     setDialogOpen(true);
-
   }
 
   function handleEdit(blog: Blog) {
 
     setSelectedBlog(blog);
-
     setDialogOpen(true);
-
   }
 
   function handleDelete(blog: Blog) {
 
     setSelectedBlog(blog);
-
     setDeleteOpen(true);
-
   }
 
   async function handleSubmit(
@@ -124,24 +113,28 @@ export default function BlogsPage() {
         await blogService.create(
           request
         );
-
       }
 
       setDialogOpen(false);
+
+      setSelectedBlog(null);
 
       await refreshBlogs();
 
     } catch (error) {
 
-      console.error(error);
-
+      console.error(
+        "Failed to save blog:",
+        error
+      );
     }
-
   }
 
   async function confirmDelete() {
 
-    if (!selectedBlog) return;
+    if (!selectedBlog) {
+      return;
+    }
 
     try {
 
@@ -151,32 +144,29 @@ export default function BlogsPage() {
 
       setDeleteOpen(false);
 
+      setSelectedBlog(null);
+
       await refreshBlogs();
 
     } catch (error) {
 
-      console.error(error);
-
+      console.error(
+        "Failed to delete blog:",
+        error
+      );
     }
-
   }
 
   if (loading) {
 
     return (
-
       <div className="flex min-h-screen items-center justify-center">
-
         Loading Blogs...
-
       </div>
-
     );
-
   }
 
   return (
-
     <div className="space-y-8 p-8">
 
       <div className="flex items-center justify-between">
@@ -184,15 +174,11 @@ export default function BlogsPage() {
         <div>
 
           <h1 className="text-3xl font-bold">
-
             Blog Management
-
           </h1>
 
           <p className="mt-2 text-gray-500">
-
             Create, edit and delete blog posts.
-
           </p>
 
         </div>
@@ -201,49 +187,37 @@ export default function BlogsPage() {
           onClick={handleCreate}
           className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
         >
-
           + Add Blog
-
         </button>
 
       </div>
 
       <BlogTable
-
         blogs={blogs}
-
         onEdit={handleEdit}
-
         onDelete={handleDelete}
-
       />
 
       <BlogDialog
-
         open={dialogOpen}
-
         blog={selectedBlog}
-
-        onClose={() => setDialogOpen(false)}
-
+        onClose={() => {
+          setDialogOpen(false);
+          setSelectedBlog(null);
+        }}
         onSubmit={handleSubmit}
-
       />
 
       <DeleteBlogDialog
-
         open={deleteOpen}
-
         blog={selectedBlog}
-
-        onClose={() => setDeleteOpen(false)}
-
+        onClose={() => {
+          setDeleteOpen(false);
+          setSelectedBlog(null);
+        }}
         onConfirm={confirmDelete}
-
       />
 
     </div>
-
   );
-
 }

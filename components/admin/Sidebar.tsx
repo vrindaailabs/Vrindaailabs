@@ -45,6 +45,10 @@ const menus = [
     href: "/admin/users",
   },
   {
+    title: "Audit Logs",
+    href: "/admin/audit",
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
   },
@@ -56,15 +60,22 @@ export default function Sidebar() {
   return (
     <aside className="min-h-screen w-64 bg-slate-900 text-white">
 
+      {/* Header */}
       <div className="border-b border-slate-700 p-6">
-
         <h2 className="text-2xl font-bold">
           Vrinda Admin
         </h2>
 
+        <p className="mt-1 text-sm text-slate-400">
+          Administration Panel
+        </p>
       </div>
 
-      <nav className="space-y-2 p-4">
+      {/* Navigation */}
+      <nav
+        className="space-y-2 p-4"
+        aria-label="Admin navigation"
+      >
 
         {menus.map((menu) => {
 
@@ -81,16 +92,20 @@ export default function Sidebar() {
             <Link
               key={menu.href}
               href={menu.href}
-              className={`block rounded-lg px-4 py-3 transition-colors ${
+              aria-current={
+                isActive
+                  ? "page"
+                  : undefined
+              }
+              className={`block rounded-lg px-4 py-3 font-medium transition-colors ${
                 isActive
                   ? "bg-blue-600 text-white"
-                  : "hover:bg-slate-700"
+                  : "text-slate-300 hover:bg-slate-700 hover:text-white"
               }`}
             >
               {menu.title}
             </Link>
           );
-
         })}
 
       </nav>

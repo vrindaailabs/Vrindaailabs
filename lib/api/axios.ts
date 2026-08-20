@@ -1,4 +1,9 @@
-import axios from "axios";
+import axios, {
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
+
+import authService from "@/services/auth.service";
 
 const api = axios.create({
   baseURL:
@@ -9,15 +14,60 @@ const api = axios.create({
 });
 
 /**
+ * Authentication endpoints that must NOT
+ * trigger automatic token refresh.
+ */
+const PUBLIC_AUTH_ENDPOINTS = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/refresh-token",
+  "/auth/logout",
+];
+
+/**
+ * Check whether request is an authentication
+ * endpoint that should bypass refresh handling.
+ */
+function isPublicAuthEndpoint(
+  url?: string
+): boolean {
+
+  if (!url) {
+    return false;
+  }
+
+  return PUBLIC_AUTH_ENDPOINTS.some(
+    (endpoint) =>
+      url.includes(endpoint)
+  );
+}
+
+/**
+ * Prevent multiple API calls from refreshing
+ * the token simultaneously.
+ */
+let refreshPromise:
+  Promise<string> | null = null;
+
+/**
  * Automatically attach JWT
  */
 api.interceptors.request.use(
-  (config) => {
-    if (typeof window !== "undefined") {
+  (config: InternalAxiosRequestConfig) => {
+
+    if (
+      typeof window !== "undefined"
+    ) {
+
       const token =
-        localStorage.getItem("accessToken");
+        localStorage.getItem(
+          "accessToken"
+        );
 
       if (token) {
+
         config.headers.Authorization =
           `Bearer ${token}`;
       }
@@ -26,44 +76,170 @@ api.interceptors.request.use(
     /*
      * Do not force Content-Type globally.
      *
-     * Axios/browser will automatically set:
+     * Axios/browser automatically handles:
      *
      * multipart/form-data; boundary=...
      *
-     * when the request body is FormData.
-     *
-     * JSON requests will also receive the
-     * appropriate content type automatically.
+     * for FormData requests.
      */
     return config;
   },
+
   (error) =>
     Promise.reject(error)
 );
 
 /**
- * Handle Unauthorized
+ * Handle Unauthorized responses.
+ *
+ * Flow:
+ *
+ * API request
+ *      ↓
+ * 401
+ *      ↓
+ * Refresh token
+ *      ↓
+ * Success → retry original request
+ *
+ * Refresh failure
+ *      ↓
+ * Clear session
+ *      ↓
+ * Redirect to login
  */
 api.interceptors.response.use(
-  (response) => response,
 
-  async (error) => {
+  (response) =>
+    response,
+
+  async (
+    error: AxiosError
+  ) => {
+
+    const originalRequest =
+      error.config as
+        | (InternalAxiosRequestConfig & {
+            _retry?: boolean;
+          })
+        | undefined;
+
     if (
-      error.response?.status === 401 &&
-      typeof window !== "undefined"
+      error.response?.status !== 401 ||
+      typeof window === "undefined" ||
+      !originalRequest
     ) {
-      localStorage.removeItem(
-        "accessToken"
-      );
 
-      localStorage.removeItem(
-        "refreshToken"
+      return Promise.reject(
+        error
       );
-
-      window.location.href = "/login";
     }
 
-    return Promise.reject(error);
+    /**
+     * Do not refresh authentication
+     * endpoints themselves.
+     */
+    if (
+      isPublicAuthEndpoint(
+        originalRequest.url
+      )
+    ) {
+
+      return Promise.reject(
+        error
+      );
+    }
+
+    /**
+     * Prevent infinite retry loop.
+     */
+    if (originalRequest._retry) {
+
+      authService.clearSession();
+
+      window.location.href =
+        "/login";
+
+      return Promise.reject(
+        error
+      );
+    }
+
+    originalRequest._retry = true;
+
+    const refreshToken =
+      authService.getRefreshToken();
+
+    if (!refreshToken) {
+
+      authService.clearSession();
+
+      window.location.href =
+        "/login";
+
+      return Promise.reject(
+        error
+      );
+    }
+
+    try {
+
+      /**
+       * If another request is already
+       * refreshing the token, wait for it.
+       */
+      if (!refreshPromise) {
+
+        refreshPromise =
+          authService
+            .refreshAccessToken()
+            .then(
+              (auth) =>
+                auth.token
+            )
+            .finally(() => {
+
+              refreshPromise =
+                null;
+            });
+      }
+
+      const newAccessToken =
+        await refreshPromise;
+
+      /**
+       * Update original request
+       * with new JWT.
+       */
+      originalRequest.headers =
+        originalRequest.headers ?? {};
+
+      originalRequest.headers.Authorization =
+        `Bearer ${newAccessToken}`;
+
+      /**
+       * Retry original request.
+       */
+      return api(
+        originalRequest
+      );
+
+    } catch (refreshError) {
+
+      console.warn(
+        "Access token refresh failed. Redirecting to login.",
+        refreshError
+      );
+
+      authService.clearSession();
+
+      window.location.href =
+        "/login";
+
+      return Promise.reject(
+        refreshError
+      );
+    }
   }
 );
 
