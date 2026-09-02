@@ -3,18 +3,21 @@ import Link from "next/link";
 
 import { COMPANY } from "@/constants/company";
 
+import type { SiteSettings } from "@/types/site-settings";
+
 interface LogoProps {
   size?: "sm" | "md" | "lg";
   showText?: boolean;
+  settings?: SiteSettings | null;
 }
 
 export default function Logo({
   size = "md",
   showText = true,
+  settings,
 }: LogoProps) {
 
   const logoSize = {
-
     sm: {
       width: 120,
       height: 44,
@@ -29,24 +32,38 @@ export default function Logo({
       width: 220,
       height: 80,
     },
-
   };
 
-  const currentSize = logoSize[size];
+  const currentSize =
+    logoSize[size];
+
+  const companyName =
+    settings?.companyName?.trim() ||
+    COMPANY.name ||
+    "Vrinda AI Labs";
+
+  const tagline =
+    settings?.tagline?.trim() ||
+    COMPANY.tagline ||
+    "Intelligence that Works";
+
+  const logoUrl =
+    settings?.logoUrl?.trim() ||
+    "/images/logo.png";
 
   return (
-
     <Link
       href="/"
       className="flex items-center gap-3"
     >
 
       <Image
-        src="/images/logo.png"
-        alt="Vrinda AI Labs"
+        src={logoUrl}
+        alt={companyName}
         width={currentSize.width}
         height={currentSize.height}
         priority
+        unoptimized={logoUrl.startsWith("http")}
         style={{
           width: "auto",
           height: `${currentSize.height}px`,
@@ -58,15 +75,11 @@ export default function Logo({
         <div>
 
           <h1 className="text-xl font-bold text-slate-900">
-
-            {COMPANY.name}
-
+            {companyName}
           </h1>
 
           <p className="text-xs text-slate-500">
-
-            {COMPANY.tagline}
-
+            {tagline}
           </p>
 
         </div>
@@ -74,7 +87,5 @@ export default function Logo({
       )}
 
     </Link>
-
   );
-
 }

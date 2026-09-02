@@ -161,11 +161,15 @@
 
 import HrNotes from "./HrNotes";
 
-import type { CareerApplication } from "@/types/career-application";
+import type {
+  CareerApplication,
+} from "@/types/career";
 
 interface CareerViewModalProps {
   open: boolean;
+
   application: CareerApplication | null;
+
   onClose: () => void;
 }
 
@@ -180,13 +184,10 @@ export default function CareerViewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-
       <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl bg-white shadow-xl">
 
         {/* Header */}
-
         <div className="flex shrink-0 items-center justify-between border-b p-6">
-
           <h2 className="text-2xl font-bold">
             Candidate Details
           </h2>
@@ -199,13 +200,10 @@ export default function CareerViewModal({
           >
             ×
           </button>
-
         </div>
 
-        {/* Candidate Details */}
-
         <div className="overflow-y-auto">
-
+          {/* Candidate Details */}
           <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
 
             <Field
@@ -269,14 +267,11 @@ export default function CareerViewModal({
               label="Resume"
               value={application.resumeFileName}
             />
-
           </div>
 
           {/* Cover Letter */}
-
           {application.coverLetter && (
             <div className="border-t p-6">
-
               <p className="text-sm text-gray-500">
                 Cover Letter
               </p>
@@ -284,22 +279,17 @@ export default function CareerViewModal({
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-800">
                 {application.coverLetter}
               </p>
-
             </div>
           )}
 
-          {/* HR NOTES */}
-
+          {/* HR Notes */}
           <HrNotes
             applicationId={application.id}
           />
-
         </div>
 
         {/* Footer */}
-
         <div className="flex shrink-0 justify-end border-t bg-white p-6">
-
           <button
             type="button"
             onClick={onClose}
@@ -307,18 +297,17 @@ export default function CareerViewModal({
           >
             Close
           </button>
-
         </div>
 
       </div>
-
     </div>
   );
 }
 
 interface FieldProps {
   label: string;
-  value: string;
+
+  value: string | null | undefined;
 }
 
 function Field({

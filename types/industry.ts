@@ -1,5 +1,4 @@
 export interface Industry {
-
   id: number;
 
   name: string;
@@ -8,16 +7,14 @@ export interface Industry {
 
   description: string;
 
-  imageUrl: string;
+  imageUrl: string | null;
 
   active: boolean;
 
   createdAt: string;
-
 }
 
 export interface IndustryRequest {
-
   name: string;
 
   shortDescription: string;
@@ -25,17 +22,14 @@ export interface IndustryRequest {
   description: string;
 
   imageUrl: string;
-
 }
 
 export interface ApiResponse<T> {
-
   success: boolean;
 
   message: string;
 
   data: T;
-
 }
 
 export type IndustryResponse =

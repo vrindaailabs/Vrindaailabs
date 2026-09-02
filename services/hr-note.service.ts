@@ -41,7 +41,9 @@ class HrNoteService {
     return response.data;
   }
 
-  async delete(noteId: number): Promise<void> {
+  async delete(
+    noteId: number
+  ): Promise<void> {
     await api.delete(
       `/careers/notes/${noteId}`
     );

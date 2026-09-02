@@ -12,9 +12,9 @@ import type {
 /**
  * Login User
  */
-export const login = async (
+export async function login(
   request: LoginRequest
-): Promise<ApiResponse<AuthenticationResponse>> => {
+): Promise<ApiResponse<AuthenticationResponse>> {
   const response =
     await api.post<ApiResponse<AuthenticationResponse>>(
       "/auth/login",
@@ -22,14 +22,14 @@ export const login = async (
     );
 
   return response.data;
-};
+}
 
 /**
  * Register User
  */
-export const register = async (
+export async function register(
   request: RegisterRequest
-): Promise<ApiResponse<AuthenticationResponse>> => {
+): Promise<ApiResponse<AuthenticationResponse>> {
   const response =
     await api.post<ApiResponse<AuthenticationResponse>>(
       "/auth/register",
@@ -37,7 +37,7 @@ export const register = async (
     );
 
   return response.data;
-};
+}
 
 /**
  * Logout User
@@ -45,9 +45,9 @@ export const register = async (
  * Backend:
  * POST /api/auth/logout?refreshToken=...
  */
-export const logout = async (
+export async function logout(
   refreshToken: string
-): Promise<ApiResponse<null>> => {
+): Promise<ApiResponse<null>> {
   const response =
     await api.post<ApiResponse<null>>(
       "/auth/logout",
@@ -60,7 +60,7 @@ export const logout = async (
     );
 
   return response.data;
-};
+}
 
 /**
  * Refresh Access Token
@@ -68,32 +68,29 @@ export const logout = async (
  * Backend:
  * POST /api/auth/refresh-token?refreshToken=...
  */
-export const refreshToken = async (
-  refreshToken: string
-): Promise<ApiResponse<AuthenticationResponse>> => {
+export async function refreshToken(
+  refreshTokenValue: string
+): Promise<ApiResponse<AuthenticationResponse>> {
   const response =
     await api.post<ApiResponse<AuthenticationResponse>>(
       "/auth/refresh-token",
       null,
       {
         params: {
-          refreshToken,
+          refreshToken: refreshTokenValue,
         },
       }
     );
 
   return response.data;
-};
+}
 
 /**
  * Forgot Password
- *
- * Backend:
- * POST /api/auth/forgot-password
  */
-export const forgotPassword = async (
+export async function forgotPassword(
   request: ForgotPasswordRequest
-): Promise<ApiResponse<null>> => {
+): Promise<ApiResponse<null>> {
   const response =
     await api.post<ApiResponse<null>>(
       "/auth/forgot-password",
@@ -101,24 +98,14 @@ export const forgotPassword = async (
     );
 
   return response.data;
-};
+}
 
 /**
  * Reset Password
- *
- * Backend:
- * POST /api/auth/reset-password
- *
- * Request:
- * {
- *   token,
- *   newPassword,
- *   confirmPassword
- * }
  */
-export const resetPassword = async (
+export async function resetPassword(
   request: ResetPasswordRequest
-): Promise<ApiResponse<null>> => {
+): Promise<ApiResponse<null>> {
   const response =
     await api.post<ApiResponse<null>>(
       "/auth/reset-password",
@@ -126,4 +113,4 @@ export const resetPassword = async (
     );
 
   return response.data;
-};
+}

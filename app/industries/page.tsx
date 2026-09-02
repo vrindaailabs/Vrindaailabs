@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
-import IndustryGrid from "@/components/industries/IndustryGrid";
+import Container from "@/components/ui/Container";
+import Card from "@/components/ui/Card";
+import SectionTitle from "@/components/ui/SectionTitle";
+
 import { industryService } from "@/services/industry.service";
 
 import type { Industry } from "@/types/industry";
 
 export const metadata: Metadata = {
-  title: "Industries | Vrinda AI Labs",
+  title: "Industries",
   description:
-    "AI-powered solutions designed for businesses across multiple industries.",
+    "Explore the industries served by Vrinda AI Labs through AI, automation, software development, and digital transformation solutions.",
 };
 
 export default async function IndustriesPage() {
@@ -19,8 +23,7 @@ export default async function IndustriesPage() {
       await industryService.getAll();
 
     industries = response.data.filter(
-      (industry: Industry) =>
-        industry.active
+      (industry) => industry.active
     );
   } catch (error) {
     console.error(
@@ -32,75 +35,113 @@ export default async function IndustriesPage() {
   return (
     <main className="bg-white">
 
-      {/* Hero Section */}
+      {/* Hero */}
 
-      <section className="bg-slate-50">
+      <section className="bg-slate-50 py-20">
 
-        <div className="mx-auto max-w-7xl px-6 py-20">
+        <Container>
 
-          <h1 className="text-5xl font-bold tracking-tight text-slate-900">
-            Industries
-          </h1>
+          <div className="mx-auto max-w-3xl text-center">
 
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-gray-600">
-            We deliver AI-powered solutions across
-            multiple industries, helping organizations
-            automate operations, improve productivity,
-            and accelerate digital transformation.
-          </p>
+            <p className="inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-blue-600">
+              Industries
+            </p>
 
-        </div>
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">
+              Technology for Every Industry
+            </h1>
 
-      </section>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              We help organizations solve industry-specific
+              challenges with AI, automation, modern software,
+              and digital transformation.
+            </p>
 
-      {/* Industries Section */}
+          </div>
 
-      <section className="mx-auto max-w-7xl px-6 py-20">
-
-        <div className="mb-10">
-
-          <h2 className="text-3xl font-bold text-slate-900">
-            Industries We Serve
-          </h2>
-
-          <p className="mt-3 max-w-2xl text-gray-600">
-            Explore how Vrinda AI Labs helps businesses
-            use AI, automation, and intelligent software
-            solutions across different industries.
-          </p>
-
-        </div>
-
-        <IndustryGrid
-          industries={industries}
-        />
+        </Container>
 
       </section>
 
-      {/* CTA Section */}
+      {/* Industries */}
 
-      <section className="bg-slate-900">
+      <section className="py-24">
 
-        <div className="mx-auto max-w-7xl px-6 py-16 text-center">
+        <Container>
 
-          <h2 className="text-3xl font-bold text-white">
-            Ready to transform your industry?
-          </h2>
+          <SectionTitle
+            title="Industries We Serve"
+            subtitle="Discover how technology can create measurable business impact in your industry."
+            align="center"
+          />
 
-          <p className="mx-auto mt-4 max-w-2xl text-gray-300">
-            Talk to us about your business challenges
-            and discover how AI, automation, and
-            software can help your organization grow.
-          </p>
+          {industries.length > 0 ? (
 
-          <a
-            href="/contact"
-            className="mt-8 inline-flex rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
-          >
-            Talk to Us
-          </a>
+            <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
 
-        </div>
+              {industries.map((industry) => (
+
+                <Card
+                  key={industry.id}
+                  className="group flex h-full flex-col overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+                >
+
+                  {industry.imageUrl && (
+
+                    <div className="mb-6 overflow-hidden rounded-xl">
+
+                      <img
+                        src={industry.imageUrl}
+                        alt={industry.name}
+                        className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+
+                    </div>
+
+                  )}
+
+                  <div className="flex flex-1 flex-col">
+
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      {industry.name}
+                    </h2>
+
+                    <p className="mt-4 flex-grow leading-7 text-gray-600">
+                      {industry.shortDescription}
+                    </p>
+
+                    <Link
+                      href={`/industries/${industry.id}`}
+                      className="mt-8 inline-flex font-semibold text-blue-600 transition hover:text-blue-700"
+                    >
+                      Explore Industry →
+                    </Link>
+
+                  </div>
+
+                </Card>
+
+              ))}
+
+            </div>
+
+          ) : (
+
+            <div className="mt-16 rounded-2xl border border-slate-200 bg-slate-50 p-12 text-center">
+
+              <h2 className="text-2xl font-semibold text-slate-900">
+                Industries Coming Soon
+              </h2>
+
+              <p className="mt-4 text-gray-600">
+                We are preparing industry-specific solutions.
+              </p>
+
+            </div>
+
+          )}
+
+        </Container>
 
       </section>
 

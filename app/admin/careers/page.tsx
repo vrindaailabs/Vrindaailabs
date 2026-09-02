@@ -12,26 +12,35 @@ import { careerService } from "@/services/career.service";
 import type {
   CareerApplication,
   CandidateStatus,
-} from "@/types/career-application";
+} from "@/types/career";
 
 export default function CareersPage() {
-  const [applications, setApplications] = useState<
-    CareerApplication[]
-  >([]);
+  const [applications, setApplications] =
+    useState<CareerApplication[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [selectedApplication, setSelectedApplication] =
-    useState<CareerApplication | null>(null);
+  const [
+    selectedApplication,
+    setSelectedApplication,
+  ] = useState<CareerApplication | null>(
+    null
+  );
 
-  const [viewOpen, setViewOpen] = useState(false);
+  const [viewOpen, setViewOpen] =
+    useState(false);
 
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] =
+    useState(false);
 
-  const [statusOpen, setStatusOpen] = useState(false);
+  const [statusOpen, setStatusOpen] =
+    useState(false);
 
-  const [statusApplicationId, setStatusApplicationId] =
-    useState<number | null>(null);
+  const [
+    statusApplicationId,
+    setStatusApplicationId,
+  ] = useState<number | null>(null);
 
   const [statusCurrent, setStatusCurrent] =
     useState<CandidateStatus>("APPLIED");
@@ -39,10 +48,12 @@ export default function CareersPage() {
   const [actionLoading, setActionLoading] =
     useState(false);
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] =
+    useState<string | null>(null);
 
   /**
-   * Load all career applications
+   * Load or refresh career applications.
+   * This function is used after delete/status actions.
    */
   async function loadApplications() {
     try {
@@ -61,13 +72,11 @@ export default function CareersPage() {
       setError(
         "Unable to load career applications."
       );
-    } finally {
-      setLoading(false);
     }
   }
 
   /**
-   * Initial load
+   * Initial page load.
    */
   useEffect(() => {
     let cancelled = false;
@@ -99,7 +108,7 @@ export default function CareersPage() {
       }
     }
 
-    fetchApplications();
+    void fetchApplications();
 
     return () => {
       cancelled = true;
@@ -107,7 +116,7 @@ export default function CareersPage() {
   }, []);
 
   /**
-   * View application
+   * View application.
    */
   async function handleView(id: number) {
     try {
@@ -134,7 +143,7 @@ export default function CareersPage() {
   }
 
   /**
-   * Download resume
+   * Download candidate resume.
    */
   async function handleResume(id: number) {
     try {
@@ -150,12 +159,12 @@ export default function CareersPage() {
       const link =
         document.createElement("a");
 
-      link.href = url;
-
       const application =
         applications.find(
           (item) => item.id === id
         );
+
+      link.href = url;
 
       link.download =
         application?.resumeFileName ||
@@ -165,7 +174,7 @@ export default function CareersPage() {
 
       link.click();
 
-      link.remove();
+      document.body.removeChild(link);
 
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -183,7 +192,7 @@ export default function CareersPage() {
   }
 
   /**
-   * Open status dialog
+   * Open status dialog.
    */
   function handleStatus(id: number) {
     const application =
@@ -195,7 +204,9 @@ export default function CareersPage() {
       return;
     }
 
-    setStatusApplicationId(id);
+    setStatusApplicationId(
+      application.id
+    );
 
     setStatusCurrent(
       application.candidateStatus
@@ -205,14 +216,14 @@ export default function CareersPage() {
   }
 
   /**
-   * Refresh after status update
+   * Refresh applications after status update.
    */
   async function handleStatusSuccess() {
     await loadApplications();
   }
 
   /**
-   * Open delete confirmation
+   * Open delete dialog.
    */
   function handleDelete(id: number) {
     const application =
@@ -230,7 +241,7 @@ export default function CareersPage() {
   }
 
   /**
-   * Confirm delete
+   * Delete selected application.
    */
   async function confirmDelete() {
     if (!selectedApplication) {
@@ -265,7 +276,7 @@ export default function CareersPage() {
   }
 
   /**
-   * Loading state
+   * Initial loading state.
    */
   if (loading) {
     return (
@@ -281,9 +292,7 @@ export default function CareersPage() {
     <div className="space-y-8 p-8">
 
       {/* Header */}
-
-      <div className="flex items-center justify-between">
-
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">
             Career Applications
@@ -304,19 +313,16 @@ export default function CareersPage() {
             {applications.length}
           </span>
         </div>
-
       </div>
 
       {/* Error */}
-
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
           {error}
         </div>
       )}
 
-      {/* Global action loading */}
-
+      {/* Action Loading */}
       {actionLoading && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
           Processing request...
@@ -324,7 +330,6 @@ export default function CareersPage() {
       )}
 
       {/* Applications */}
-
       <CareerTable
         applications={applications}
         onView={handleView}
@@ -333,8 +338,7 @@ export default function CareersPage() {
         onDelete={handleDelete}
       />
 
-      {/* View */}
-
+      {/* View Modal */}
       <CareerViewModal
         open={viewOpen}
         application={selectedApplication}
@@ -344,9 +348,9 @@ export default function CareersPage() {
         }}
       />
 
-      {/* Status */}
-
+      {/* Status Dialog */}
       <StatusDialog
+        key={`${statusApplicationId ?? "new"}-${statusCurrent}-${statusOpen}`}
         open={statusOpen}
         applicationId={statusApplicationId}
         currentStatus={statusCurrent}
@@ -357,11 +361,15 @@ export default function CareersPage() {
         onSuccess={handleStatusSuccess}
       />
 
-      {/* Delete */}
-
+      {/* Delete Dialog */}
       <DeleteDialog
         open={deleteOpen}
+        loading={actionLoading}
         onClose={() => {
+          if (actionLoading) {
+            return;
+          }
+
           setDeleteOpen(false);
           setSelectedApplication(null);
         }}

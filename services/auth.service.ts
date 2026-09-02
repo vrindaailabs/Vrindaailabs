@@ -9,106 +9,135 @@ import type {
 } from "@/types/auth";
 
 class AuthService {
+  /**
+   * Save authentication tokens.
+   */
+  private saveSession(
+    auth: AuthenticationResponse
+  ): void {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!auth.token) {
+      throw new Error(
+        "Access token was not returned by the server."
+      );
+    }
+
+    localStorage.setItem(
+      "accessToken",
+      auth.token
+    );
+
+    if (auth.refreshToken) {
+      localStorage.setItem(
+        "refreshToken",
+        auth.refreshToken
+      );
+    }
+  }
 
   /**
-   * Login User
+   * Login.
    */
   async login(
     request: LoginRequest
   ): Promise<AuthenticationResponse> {
-
     const response =
       await authApi.login(request);
 
+    if (!response.success) {
+      throw new Error(
+        response.message ||
+          "Login failed."
+      );
+    }
+
     const auth = response.data;
 
-    if (!auth?.token || !auth?.refreshToken) {
+    if (!auth?.token) {
       throw new Error(
-        "Authentication tokens were not returned by the server."
+        "Authentication token was not returned by the server."
       );
     }
 
-    if (typeof window !== "undefined") {
-
-      localStorage.setItem(
-        "accessToken",
-        auth.token
-      );
-
-      localStorage.setItem(
-        "refreshToken",
-        auth.refreshToken
-      );
-    }
+    this.saveSession(auth);
 
     return auth;
   }
 
   /**
-   * Register User
+   * Register.
    */
   async register(
     request: RegisterRequest
   ): Promise<AuthenticationResponse> {
-
     const response =
       await authApi.register(request);
 
+    if (!response.success) {
+      throw new Error(
+        response.message ||
+          "Registration failed."
+      );
+    }
+
     const auth = response.data;
 
-    if (!auth?.token || !auth?.refreshToken) {
+    if (!auth?.token) {
       throw new Error(
-        "Authentication tokens were not returned by the server."
+        "Authentication token was not returned by the server."
       );
     }
 
-    if (typeof window !== "undefined") {
-
-      localStorage.setItem(
-        "accessToken",
-        auth.token
-      );
-
-      localStorage.setItem(
-        "refreshToken",
-        auth.refreshToken
-      );
-    }
+    this.saveSession(auth);
 
     return auth;
   }
 
   /**
-   * Forgot Password
+   * Forgot password.
    */
   async forgotPassword(
     request: ForgotPasswordRequest
   ): Promise<string> {
-
     const response =
       await authApi.forgotPassword(request);
+
+    if (!response.success) {
+      throw new Error(
+        response.message ||
+          "Unable to process forgot password request."
+      );
+    }
 
     return response.message;
   }
 
   /**
-   * Reset Password
+   * Reset password.
    */
   async resetPassword(
     request: ResetPasswordRequest
   ): Promise<string> {
-
     const response =
       await authApi.resetPassword(request);
+
+    if (!response.success) {
+      throw new Error(
+        response.message ||
+          "Unable to reset password."
+      );
+    }
 
     return response.message;
   }
 
   /**
-   * Refresh Access Token
+   * Refresh token manually.
    */
   async refreshAccessToken(): Promise<AuthenticationResponse> {
-
     if (typeof window === "undefined") {
       throw new Error(
         "Token refresh is only available in the browser."
@@ -116,7 +145,7 @@ class AuthService {
     }
 
     const refreshToken =
-      localStorage.getItem("refreshToken");
+      this.getRefreshToken();
 
     if (!refreshToken) {
       throw new Error(
@@ -129,6 +158,13 @@ class AuthService {
         refreshToken
       );
 
+    if (!response.success) {
+      throw new Error(
+        response.message ||
+          "Unable to refresh access token."
+      );
+    }
+
     const auth = response.data;
 
     if (!auth?.token) {
@@ -137,72 +173,42 @@ class AuthService {
       );
     }
 
-    localStorage.setItem(
-      "accessToken",
-      auth.token
-    );
-
-    /*
-     * Backend currently returns the existing
-     * refresh token as well.
-     *
-     * Store it again so the client remains
-     * synchronized with the backend response.
-     */
-    if (auth.refreshToken) {
-      localStorage.setItem(
-        "refreshToken",
-        auth.refreshToken
-      );
-    }
+    this.saveSession(auth);
 
     return auth;
   }
 
   /**
-   * Logout User
-   *
-   * Backend logout is attempted first.
-   * Local tokens are always removed.
+   * Logout.
    */
   async logout(): Promise<void> {
-
     if (typeof window === "undefined") {
       return;
     }
 
     const refreshToken =
-      localStorage.getItem(
-        "refreshToken"
-      );
+      this.getRefreshToken();
 
     try {
-
       if (refreshToken) {
-
         await authApi.logout(
           refreshToken
         );
       }
-
     } catch (error) {
-
       console.warn(
-        "Backend logout failed. Clearing local session anyway.",
+        "Backend logout failed:",
         error
       );
-
     } finally {
-
       this.clearSession();
     }
   }
 
   /**
-   * Clear Local Authentication
+   * Clear session.
    */
   clearSession(): void {
-
     if (typeof window === "undefined") {
       return;
     }
@@ -217,26 +223,18 @@ class AuthService {
   }
 
   /**
-   * Check Authentication
+   * Check whether authenticated.
    */
   isAuthenticated(): boolean {
-
-    if (typeof window === "undefined") {
-      return false;
-    }
-
     return Boolean(
-      localStorage.getItem(
-        "accessToken"
-      )
+      this.getToken()
     );
   }
 
   /**
-   * Get Access Token
+   * Get access token.
    */
   getToken(): string | null {
-
     if (typeof window === "undefined") {
       return null;
     }
@@ -247,10 +245,9 @@ class AuthService {
   }
 
   /**
-   * Get Refresh Token
+   * Get refresh token.
    */
   getRefreshToken(): string | null {
-
     if (typeof window === "undefined") {
       return null;
     }

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 
-import CTA from "@/components/home/CTA";
-
 import AboutHero from "@/components/about/AboutHero";
 import OurStory from "@/components/about/OurStory";
 import MissionVision from "@/components/about/MissionVision";
 import CoreValues from "@/components/about/CoreValues";
 import WhyChooseUs from "@/components/about/WhyChooseUs";
 import OurProcess from "@/components/about/OurProcess";
+import AboutCTA from "@/components/about/AboutCTA";
 
 export const metadata: Metadata = {
   title: "About",
@@ -30,7 +29,7 @@ export default function AboutPage() {
 
       <OurProcess />
 
-      <CTA />
+      <AboutCTA />
     </>
   );
 }

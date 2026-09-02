@@ -1,45 +1,45 @@
-export type CandidateStatus =
-  | "APPLIED"
-  | "SHORTLISTED"
-  | "INTERVIEW"
-  | "SELECTED"
-  | "HIRED"
-  | "REJECTED";
+// export type CandidateStatus =
+//   | "APPLIED"
+//   | "SHORTLISTED"
+//   | "INTERVIEW"
+//   | "SELECTED"
+//   | "HIRED"
+//   | "REJECTED";
 
-export interface CareerApplication {
+// export interface CareerApplication {
 
-  id: number;
+//   id: number;
 
-  fullName: string;
+//   fullName: string;
 
-  email: string;
+//   email: string;
 
-  phoneNumber: string;
+//   phoneNumber: string;
 
-  jobTitle: string;
+//   jobTitle: string;
 
-  experience: string;
+//   experience: string;
 
-  currentCompany: string;
+//   currentCompany: string;
 
-  currentCTC: string;
+//   currentCTC: string;
 
-  expectedCTC: string;
+//   expectedCTC: string;
 
-  noticePeriod: string;
+//   noticePeriod: string;
 
-  resumeFileName: string;
+//   resumeFileName: string;
 
-  coverLetter: string;
+//   coverLetter: string;
 
-  candidateStatus: CandidateStatus;
+//   candidateStatus: CandidateStatus;
 
-  appliedAt: string;
+//   appliedAt: string;
 
-}
+// }
 
-export interface UpdateCandidateStatusRequest {
+// export interface UpdateCandidateStatusRequest {
 
-  candidateStatus: CandidateStatus;
+//   candidateStatus: CandidateStatus;
 
-}
+// }
